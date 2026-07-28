@@ -53,10 +53,10 @@
 
 ```bash
 # 全局（所有项目可用）
-git clone <this-repo-url> ~/.claude/skills/cell-type-annotation
+git clone https://github.com/Yangfan9606/cell-type-annotation-skill ~/.claude/skills/cell-type-annotation
 
 # 或项目内
-git clone <this-repo-url> <你的项目>/.claude/skills/cell-type-annotation
+git clone https://github.com/Yangfan9606/cell-type-annotation-skill <你的项目>/.claude/skills/cell-type-annotation
 ```
 
 在该项目下重新打开/开始一个 Claude Code 对话，描述你的注释任务即可——Claude 会根据 `SKILL.md` 的

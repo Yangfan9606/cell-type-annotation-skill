@@ -62,10 +62,10 @@ either globally or per-project, so `SKILL.md` sits at `<dir>/cell-type-annotatio
 
 ```bash
 # global (all projects)
-git clone <this-repo-url> ~/.claude/skills/cell-type-annotation
+git clone https://github.com/Yangfan9606/cell-type-annotation-skill ~/.claude/skills/cell-type-annotation
 
 # or project-local
-git clone <this-repo-url> <your-project>/.claude/skills/cell-type-annotation
+git clone https://github.com/Yangfan9606/cell-type-annotation-skill <your-project>/.claude/skills/cell-type-annotation
 ```
 
 Restart/open a new Claude Code conversation in that project and describe an annotation task — Claude
