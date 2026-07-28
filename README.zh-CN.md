@@ -18,6 +18,7 @@
 - [这是什么](#这是什么)
 - [安装](#安装)
 - [用法](#用法)
+- [简单用法——一键 cluster 级 marker 核查](#简单用法一键-cluster-级-marker-核查)
 - [完整案例](#完整案例)
 - [Marker 审核](#marker-审核)
 - [自我迭代](#自我迭代)
@@ -52,10 +53,10 @@
 
 ```bash
 # 全局（所有项目可用）
-git clone https://github.com/Yangfan9606/cell-type-annotation-skill ~/.claude/skills/cell-type-annotation
+git clone <this-repo-url> ~/.claude/skills/cell-type-annotation
 
 # 或项目内
-git clone https://github.com/Yangfan9606/cell-type-annotation-skill <你的项目>/.claude/skills/cell-type-annotation
+git clone <this-repo-url> <你的项目>/.claude/skills/cell-type-annotation
 ```
 
 在该项目下重新打开/开始一个 Claude Code 对话，描述你的注释任务即可——Claude 会根据 `SKILL.md` 的
@@ -103,6 +104,23 @@ nohup Rscript scripts/sc_006.find_marker.DEG.Heter.R -i <你的.rds> \
 ```
 计算脚本跑完会自动打印 11 个对应画图命令——复制你要的那些即可（注释类 marker 用 dotplot，DEG/pseudobulk
 用 volcano，heatmap/violin/dimplot 按需）。
+
+### 简单用法——一键 cluster 级 marker 核查
+
+日常最常用的模式：跑完计算，直接把 `results/` 下的产出丢给 Claude 让它判断。
+`scripts/check_markers_at_cluster_level.sh` 把计算调用和逐 cluster top50 聚合（strict→sensitive
+兜底，详见 `scripts_reference.md §4a`）打包成一个脚本，并新增一个**特异性 flag**：任何阳性 marker，
+只要背景表达（pct.2）超过阈值，就标 `high_bg_check`，而不是被默默采信。
+
+```bash
+bash scripts/check_markers_at_cluster_level.sh <你的.rds> [cluster_col] [thresh] [high_bg_pct2]
+# 默认值：cluster_col=seurat_clusters  thresh=10  high_bg_pct2=0.5
+# 后台跑：nohup bash scripts/check_markers_at_cluster_level.sh <你的.rds> > check_markers.log 2>&1 &
+```
+
+然后直接说："这是 `results/sc006_top50_per_cluster.csv`，帮我判断每个 cluster 是什么。" Claude 会
+连同 `tier`/`pct_diff`/`specificity_flag` 这几列一起读，套用 `references/decision_logic.md` 里同一套
+促进性陷阱逻辑——任何 `high_bg_check` 行在被当作决定性证据之前都会先被仔细核查。
 
 ---
 
@@ -169,6 +187,7 @@ scripts/
   sc_004.*.R                   注释引擎 + 疑难 cluster 排查 + marker_viz + 重编码
   sc_005.SubClass_extract.R    干净的细胞/cluster 抽取 + 简单重聚类/UMAP
   sc_006.*.R                   亚型 marker / 差异表达 / pseudobulk / 异质性 + 11 个画图脚本
+  check_markers_at_cluster_level.sh   一键计算+聚合，见上方"简单用法"
 ```
 
 ## License

@@ -1,5 +1,16 @@
 # Changelog — cell-type-annotation
 
+## v0.3.3 — 2026-07-28 (new script: check_markers_at_cluster_level.sh)
+- New `scripts/check_markers_at_cluster_level.sh`: wraps `sc_006.find_marker.DEG.Heter.R
+  --do_find_marker` + the per-cluster strict→sensitive top50 aggregation
+  (`references/scripts_reference.md §4a`) into one command, for the common "run once, hand the
+  results folder to the skill" workflow.
+- Aggregation gains two new columns: `pct_diff` (pct.1 − pct.2) and `specificity_flag` — any positive
+  marker whose background expression (pct.2) exceeds a configurable threshold (default 0.5) is tagged
+  `"high_bg_check"` instead of being silently trusted, so the skill can weight it more skeptically
+  before treating it as decisive evidence.
+- `references/scripts_reference.md §4a` updated to document the wrapper script and the new columns.
+
 ## v0.3.2 — 2026-07-22 (new script: sc_004.04.recode_celltype.R)
 - New `scripts/sc_004.04.recode_celltype.R` + `references/scripts_reference.md §3a`: recodes a
   cluster column into a proper `cell_type` factor from a required external TSV map file

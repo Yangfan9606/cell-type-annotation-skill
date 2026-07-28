@@ -21,6 +21,7 @@ and iterates.
 - [What this is](#what-this-is)
 - [Install](#install)
 - [Usage](#usage)
+- [Simple usage — one-shot marker check](#simple-usage--one-shot-cluster-level-marker-check)
 - [Worked example](#worked-example)
 - [Marker review](#marker-review)
 - [Self-iteration](#self-iteration)
@@ -61,10 +62,10 @@ either globally or per-project, so `SKILL.md` sits at `<dir>/cell-type-annotatio
 
 ```bash
 # global (all projects)
-git clone https://github.com/Yangfan9606/cell-type-annotation-skill ~/.claude/skills/cell-type-annotation
+git clone <this-repo-url> ~/.claude/skills/cell-type-annotation
 
 # or project-local
-git clone https://github.com/Yangfan9606/cell-type-annotation-skill <your-project>/.claude/skills/cell-type-annotation
+git clone <this-repo-url> <your-project>/.claude/skills/cell-type-annotation
 ```
 
 Restart/open a new Claude Code conversation in that project and describe an annotation task — Claude
@@ -115,6 +116,25 @@ nohup Rscript scripts/sc_006.find_marker.DEG.Heter.R -i <your.rds> \
 ```
 The compute driver prints all 11 matching plot commands at the end of its run — copy the ones you want
 (dotplot for annotation markers, volcano for DEG/pseudobulk, heatmap/violin/dimplot as needed).
+
+### Simple usage — one-shot cluster-level marker check
+
+The most common day-to-day pattern: run the compute once, then just hand Claude the `results/` output
+and ask for a judgment. `scripts/check_markers_at_cluster_level.sh` wraps the compute call and a
+per-cluster top50 aggregation (strict→sensitive fallback, per `scripts_reference.md §4a`) into one
+script, and adds a **specificity flag**: any positive marker whose background expression (pct.2)
+exceeds a threshold gets tagged `high_bg_check` instead of being silently trusted.
+
+```bash
+bash scripts/check_markers_at_cluster_level.sh <your.rds> [cluster_col] [thresh] [high_bg_pct2]
+# defaults: cluster_col=seurat_clusters  thresh=10  high_bg_pct2=0.5
+# to background it: nohup bash scripts/check_markers_at_cluster_level.sh <your.rds> > check_markers.log 2>&1 &
+```
+
+Then just say: *"here's `results/sc006_top50_per_cluster.csv`, tell me what each cluster is."* Claude
+reads the `tier`/`pct_diff`/`specificity_flag` columns alongside the marker table and applies the same
+promiscuity-trap logic from `references/decision_logic.md` — any `high_bg_check` row gets scrutinized
+before being trusted as decisive evidence.
 
 ---
 
@@ -186,6 +206,7 @@ scripts/
   sc_004.*.R                   annotation engine + ambiguous-cluster resolve + marker_viz + recode
   sc_005.SubClass_extract.R    clean cell/cluster extraction + plain re-cluster/UMAP
   sc_006.*.R                   subtype marker / DEG / pseudobulk / heterogeneity + 11 plot scripts
+  check_markers_at_cluster_level.sh   one-shot compute + aggregation, see Simple usage above
 ```
 
 ## License

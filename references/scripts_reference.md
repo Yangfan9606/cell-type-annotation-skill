@@ -351,8 +351,22 @@ visual specificity check.
 > the object's full cluster list; any cluster missing (or under ~10-15 rows) needs the **sensitive** tier
 > for that cluster specifically, not a switch of the whole run. See `ITERATION_LOG.md`.
 
-**Recommended replacement aggregation** (per-cluster strict→sensitive fallback, tagged, nothing silently
-dropped — run from the `results/` dir after `--do_find_marker`):
+**Easiest path: `scripts/check_markers_at_cluster_level.sh`** wraps the compute call and the
+aggregation below into one script, and adds a **specificity flag**: any positive marker (avg_log2FC>0)
+whose background expression (pct.2) exceeds `HIGHBG` (default 0.5) is tagged `"high_bg_check"` in a new
+`specificity_flag` column instead of being silently trusted — alongside a `pct_diff` column (pct.1 −
+pct.2). Usage:
+```bash
+bash scripts/check_markers_at_cluster_level.sh <rds> [cluster_col] [thresh] [high_bg_pct2]
+# defaults: cluster_col=seurat_clusters  thresh=10  high_bg_pct2=0.5
+```
+Output is `results/sc006_top50_per_cluster.csv` — hand this straight to the skill for a per-cluster
+judgment; when reading it, weight any `high_bg_check` row more skeptically than an `"ok"` row before
+treating it as decisive evidence (same principle as the promiscuity traps in `decision_logic.md §3`).
+
+**Recommended replacement aggregation** (the raw awk pipeline the script above wraps, per-cluster
+strict→sensitive fallback, tagged, nothing silently dropped — run from the `results/` dir after
+`--do_find_marker`):
 ```bash
 THRESH=10   # min ROC-surviving (myAUC!=NA) rows a cluster needs before its strict tier is trusted
 awk -F',' -v th="$THRESH" 'NR>1 && $8!="NA"{cnt[$6]++} END{for (c in cnt) if (cnt[c]>=th) print c}' \

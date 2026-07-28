@@ -49,6 +49,7 @@ skill (this dir, reusable):
     sc_006.find_marker.DEG.Heter.R    subtype marker / DEG / heterogeneity compute (4 switches; see scripts_reference §4)
     sc_006.plot.<job>.<type>.R        11 standalone plot scripts (find_marker/deg/pseudobulk/hetero × their plots)
     sc_006.plot.dotplot_engine.R      shared 3-style DotPlot engine (sourced by both dotplot wrappers)
+    check_markers_at_cluster_level.sh one-shot: compute + per-cluster top50 aggregation with a high-background flag
 ```
 
 Adapting this to your own project: point the commands you generate at wherever you deploy
