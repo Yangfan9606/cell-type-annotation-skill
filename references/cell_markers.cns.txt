@@ -1,0 +1,39 @@
+# cell_markers.cns.txt  (2026-07-22)
+# Skill 内置 CNS marker 库 (人脑+脊髓)。喂给 sc_004.CellType_Annotation.R 的 markers=。
+# 配套说明与陷阱见 marker_library.md。物种=人类符号; 小鼠改 title-case 并切 QC 正则(^mt-/^Rp[ls]/^Hb)。
+#
+# 关键陷阱(详见 decision_logic.md):
+#  - OPC 只有 PDGFRA+CSPG4 同时亮才算真; VCAN 是陪衬(蹭神经元/成纤维), LHFPL3 已删(在 GABA 神经元 82%)。
+#    不要把 SOX10/OLIG1/2/CNP 放进 OPC——会和 Oligodendrocyte 抢票。
+#  - Microglia 的 C1QA/C1QB 与巨噬/ambient 共享; 配 --presence_floor 0.4 并核对 CSF1R/TYROBP/AIF1。
+#  - Neuron_pan 会压低神经元亚型 margin(尤其 MotorNeuron); 亚型被吞时考虑删它。
+#  - Proliferating/Neuroblast/NPC 是"状态/未成熟"轴, 与谱系抢票属正常, 命名时剥离细胞周期看底层谱系。
+#  - Mural 拆成 pericyte(KCNJ8/HIGD1B/NDUFA4L2) 与 SMC(ACTA2/MYH11/TAGLN) 两个亚型, 干净可分。
+#  - Schwann_cell(PNS, 脊神经根污染常见)只用 MPZ/PRX/EGR2——都不与 Oligodendrocyte 共享。
+#    不要加 MBP(和 Oligo 共享)、SOX10(少突全谱系共享 TF)、S100B(是 Astrocyte marker)、GAP43(轴突再生通用)。
+#  - Meningeal_fibro_pia: 载体基因是 SLC47A1(单基因近乎排他, 见 marker_library.md); PTGDS/S100A6 在
+#    所有成纤维亚型里都有中等baseline, 只能用来"确认"不能用来"定案"。别把 PTGDS/CLU/CST3/MGP/DCN 升高
+#    误判为纯低质量(lowQC)——先看是否真的高于成纤维baseline, 再决定是lowQC还是脑膜亚型。
+#  - Melanocyte: 血管周/软脑膜黑素细胞是正常存在的真实群体(非doublet/ambient), 好发于脑底和颈段脊髓
+#    腹侧、可延伸进血管周间隙——在脊髓血管/血管周subset里出现是预期内的解剖学邻近, 不要当污染剔除。
+Neuron_pan	SYT1,SNAP25,RBFOX3
+Excitatory	SLC17A6,SLC17A7,SATB2
+Inhibitory	GAD1,GAD2,SLC32A1,SLC6A5
+MotorNeuron	CHAT,ISL1,MNX1,SLC5A7,SLC18A3
+Astrocyte	SLC1A2,AQP4,GFAP,ATP1A2
+Oligodendrocyte	PLP1,MOBP,MBP,MOG,MAG,CNP,CLDN11,OPALIN
+OPC	PDGFRA,CSPG4,VCAN
+Microglia	P2RY12,CX3CR1,C1QB,C1QA,CSF1R,APBB1IP
+Perivasc_Macro	MRC1,CD163,LYVE1,F13A1
+Tcells	CD3E,CD3D,CD3G
+Vasc_endo	CLDN5,PECAM1,FLT1
+Mural_pericyte	RGS5,PDGFRB,NOTCH3,KCNJ8,HIGD1B,NDUFA4L2
+Mural_SMC	ACTA2,MYH11,TAGLN,MYL9,MYLK
+Vasc_fibro	DCN,COL1A1,COL1A2,LUM
+Meningeal_fibro_pia	SLC47A1,PTGDS,S100A6,SLC4A4
+Melanocyte	TYR,TYRP1,DCT,PMEL,MLANA,OCA2,PAX3
+Schwann_cell	MPZ,PRX,EGR2
+Ependymal	FOXJ1,PIFO,TMEM212,CCDC153
+Proliferating	MKI67,TOP2A,CENPF,HELLS,DIAPH3
+Neuroblast	DCX,STMN2,SOX11,SOX4,CD24,NNAT
+NPC_RadialGlia	SOX2,PTPRZ1,FABP7,VIM,HES1
